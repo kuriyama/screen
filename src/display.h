@@ -364,6 +364,7 @@ void  MakeStatus (char *);
 void  RemoveStatus (void);
 int   ResizeDisplay (int, int);
 void  AddStr (char *);
+void  AddRawStr (char *);
 void  AddStrn (char *, int);
 void  Flush (int);
 void  freetty (void);

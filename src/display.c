@@ -2161,7 +2161,7 @@ void SetXtermOSC(int i, char *s, char *t)
 	D_xtermosc[i] = 1;
 	AddStr("\033]");
 	AddStr(oscs[i][0]);
-	AddStr(s);
+	AddRawStr(s);
 	AddStr(t);
 }
 
@@ -2188,6 +2188,14 @@ void AddStr(char *str)
 			AddUtf8((unsigned char)c);
 		return;
 	}
+	while ((c = *str++))
+		AddChar(c);
+}
+
+void AddRawStr(char *str)
+{
+	register char c;
+
 	while ((c = *str++))
 		AddChar(c);
 }

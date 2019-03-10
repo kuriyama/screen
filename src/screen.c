@@ -1592,8 +1592,27 @@ void PutWinMsg(char *s, int start, int max)
 			while (n-- > 0) {
 				if (start-- > 0)
 					s++;
+#ifdef UTF8
+				else if ((unsigned char)*s < 0x80) {
+					PUTCHARLP(*s++);
+				} else if ((unsigned char)*s < 0xe0) {
+					int first = (*s++ & 0x1f) << 6;
+					int second = *s++ & 0x3f;
+					AddUtf8(first | second);
+					n -= 1;
+					start -= 1;
+				} else { /* if (*s2 < 0xf0) */
+				  int first = (*s++ & 0x1f) << 12;
+				  int second = (*s++ & 0x3f) << 6;
+				  int third = *s++ & 0x3f;
+				  AddUtf8(first | second | third);
+				  n -= 2;
+				  start -= 2;
+				}
+#else
 				else
 					PUTCHARLP(*s++);
+#endif
 			}
 		}
 		r = g_winmsg->rend[i];
@@ -1613,8 +1632,27 @@ void PutWinMsg(char *s, int start, int max)
 		while (n-- > 0) {
 			if (start-- > 0)
 				s++;
+#ifdef UTF8
+			else if ((unsigned char)*s < 0x80) {
+				PUTCHARLP(*s++);
+			} else if ((unsigned char)*s < 0xe0) {
+				int first = (*s++ & 0x1f) << 6;
+				int second = *s++ & 0x3f;
+				AddUtf8(first | second);
+				n -= 1;
+				start -= 1;
+			} else { /* if (*s2 < 0xf0) */
+				int first = (*s++ & 0x1f) << 12;
+				int second = (*s++ & 0x3f) << 6;
+				int third = *s++ & 0x3f;
+				AddUtf8(first | second | third);
+				n -= 2;
+				start -= 2;
+			}
+#else
 			else
 				PUTCHARLP(*s++);
+#endif
 		}
 	}
 }

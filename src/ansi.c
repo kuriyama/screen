@@ -1214,8 +1214,21 @@ static void StringChar(Window *win, int c)
 {
 	if (win->w_stringp >= win->w_string + MAXSTR - 1)
 		win->w_state = LIT;
+#ifdef UTF8
+	else if (c < 0x80)
+		*(win->w_stringp)++ = c;
+	else  if (c < 0x800) {
+		*(win->w_stringp)++ = (c >> 6) | 0xc0;
+		*(win->w_stringp)++ = (c & 0x3f) | 0xc0;
+	} else { /* if (c < 0x10000) */
+		*(win->w_stringp)++ = (c >> 12) | 0xe0;
+		*(win->w_stringp)++ = ((c >> 6) & 0x3f) | 0x80;
+		*(win->w_stringp)++ = (c & 0x3f) | 0x80;
+	}
+#else
 	else
 		*(win->w_stringp)++ = c;
+#endif
 }
 
 /*
@@ -1317,7 +1330,7 @@ static int StringEnd(Window *win)
 		}
 		return -1;
 	case DCS:
-		LAY_DISPLAYS(&win->w_layer, AddStr(win->w_string));
+		LAY_DISPLAYS(&win->w_layer, AddRawStr(win->w_string));
 		break;
 	case AKA:
 		if (win->w_title == win->w_akabuf && !*win->w_string)
@@ -1816,7 +1829,11 @@ void ChangeAKA(Window *win, char *s, size_t len)
 		c = (unsigned char)*s++;
 		if (c == 0)
 			break;
+#ifdef UTF8
+		if (c < 32)
+#else
 		if (c < 32 || c == 127 || (c >= 128 && c < 160 && win->w_c1))
+#endif
 			continue;
 		win->w_akachange[i++] = c;
 	}
