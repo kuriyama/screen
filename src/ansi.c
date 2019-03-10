@@ -526,6 +526,9 @@ void WriteString(Window *win, char *buf, size_t len)
 						LPutChar(&win->w_layer, &omc, ox, oy);
 						LGotoPos(&win->w_layer, win->w_x, win->w_y);
 					}
+					if (win->w_mbcs) {
+						win->w_rend.mbcs = win->w_mbcs = 0;
+					}
 					break;
 				}
 				font = win->w_rend.font;
